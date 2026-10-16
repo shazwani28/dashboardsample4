@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Semakan iFRP &#8212; Kolej Komuniti Arau</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+  background: #f0f4f8;
+  color: #1f2328;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* &#8212;&#8212; Top bar &#8212;&#8212; */
+.topbar {
+  background: #1a3a5c;
+  color: #fff;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 60px;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.topbar-brand { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; }
+.topbar-meta { font-size: 11px; color: #a8c4e0; margin-top: 2px; }
+.topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tb-btn {
+  background: #3b82d4; color: #fff; border: none;
+  border-radius: 6px; padding: 7px 14px; font-size: 12px;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.tb-btn:hover { background: #2563b0; }
+.tb-btn-ghost {
+  background: transparent; color: #a8c4e0;
+  border: 1px solid #2d5a84;
+  border-radius: 6px; padding: 6px 14px; font-size: 12px;
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.tb-btn-ghost:hover { background: #1f4e7a; color: #fff; }
+
+main { padding: 20px; max-width: 1300px; margin: 0 auto; }
+
+/* &#8212;&#8212; Cards &#8212;&#8212; */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.card-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #57606a; margin-bottom: 5px; }
+.card-value { font-size: 28px; font-weight: 700; line-height: 1.1; }
+.card-sub   { font-size: 11px; color: #57606a; margin-top: 4px; }
+.card-accent-blue   { border-top: 3px solid #3b82d4; }
+.card-accent-green  { border-top: 3px solid #22c55e; }
+.card-accent-amber  { border-top: 3px solid #f59e0b; }
+.card-accent-purple { border-top: 3px solid #7c5cd8; }
+.card-accent-grey   { border-top: 3px solid #9ca3af; }
+.prog-track { background: #e5e7eb; border-radius: 4px; height: 5px; margin-top: 8px; }
+.prog-fill  { height: 5px; border-radius: 4px; transition: width 0.4s; }
+
+/* &#8212;&#8212; Charts row &#8212;&#8212; */
+.charts-row {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: start;
+}
+.chart-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px;
+}
+.chart-title {
+  font-size: 13px; font-weight: 700; color: #1f2328;
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+canvas { display: block; }
+
+/* &#8212;&#8212; Section &#8212;&#8212; */
+.section {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 14px; font-weight: 700; color: #1f2328;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* &#8212;&#8212; Filters &#8212;&#8212; */
+.filters {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 14px; align-items: flex-end;
+}
+.filter-group { display: flex; flex-direction: column; gap: 3px; }
+.filter-group label { font-size: 11px; font-weight: 600; color: #57606a; text-transform: uppercase; letter-spacing: 0.04em; }
+.filter-group select,
+.filter-group input {
+  border: 1px solid #d1d5db; border-radius: 6px;
+  padding: 6px 10px; font-size: 13px; color: #1f2328;
+  background: #fff; min-width: 130px;
+}
+.filter-group input[type="search"] { min-width: 220px; }
+.btn-reset {
+  background: #f3f4f6; border: 1px solid #d1d5db;
+  border-radius: 6px; padding: 6px 14px; font-size: 13px;
+  cursor: pointer; color: #1f2328; margin-top: 18px;
+}
+.btn-reset:hover { background: #e5e7eb; }
+
+/* &#8212;&#8212; Table &#8212;&#8212; */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 700px; }
+thead th {
+  text-align: left; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em; color: #57606a;
+  padding: 6px 10px 8px; cursor: pointer; user-select: none;
+  white-space: nowrap; background: #f7f8fa;
+  border-bottom: 2px solid #e5e7eb;
+}
+thead th:hover { color: #1a3a5c; }
+thead th .si { font-size: 10px; margin-left: 3px; }
+tbody td {
+  padding: 9px 10px; font-size: 13px;
+  border-bottom: 1px solid #f0f1f3;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f7f8fa; }
+.table-empty { text-align: center; padding: 32px; color: #57606a; font-size: 13px; }
+
+/* &#8212;&#8212; Badge / Status &#8212;&#8212; */
+.badge {
+  display: inline-block; padding: 3px 9px;
+  border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.badge-selesai   { background: #dcfce7; color: #15803d; }
+.badge-semakan   { background: #fef9c3; color: #92400e; }
+.badge-belum     { background: #f3f4f6; color: #57606a; }
+.badge-tiada     { background: #fee2e2; color: #b91c1c; }
+
+/* &#8212;&#8212; Status dot &#8212;&#8212; */
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-selesai  { background: #22c55e; }
+.dot-semakan  { background: #f59e0b; }
+.dot-belum    { background: #9ca3af; }
+.dot-tiada    { background: #ef4444; }
+
+/* &#8212;&#8212; Status select in table &#8212;&#8212; */
+.status-sel {
+  border: 1px solid #d1d5db; border-radius: 6px;
+  padding: 3px 6px; font-size: 12px; cursor: pointer;
+  background: #fff; color: #1f2328;
+}
+.status-sel:focus { outline: 2px solid #3b82d4; }
+
+/* &#8212;&#8212; Legend &#8212;&#8212; */
+.legend { display: flex; flex-wrap: wrap; gap: 12px; }
+.leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #57606a; }
+
+/* &#8212;&#8212; Modal &#8212;&#8212; */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 100;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: #fff; border-radius: 10px; padding: 24px;
+  max-width: 560px; width: 100%; max-height: 90vh;
+  overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+.modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.modal p  { font-size: 13px; color: #57606a; margin-bottom: 14px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+.btn-primary {
+  background: #3b82d4; color: #fff; border: none;
+  border-radius: 6px; padding: 8px 18px; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.btn-primary:hover { background: #2563b0; }
+.btn-secondary {
+  background: #f3f4f6; color: #1f2328; border: 1px solid #d1d5db;
+  border-radius: 6px; padding: 8px 18px; font-size: 13px; cursor: pointer;
+}
+.btn-secondary:hover { background: #e5e7eb; }
+.drop-zone {
+  border: 2px dashed #d1d5db; border-radius: 8px; padding: 28px;
+  text-align: center; color: #57606a; font-size: 13px;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: #3b82d4; color: #3b82d4; }
+#import-feedback { font-size: 12px; margin-top: 10px; min-height: 18px; }
+.feedback-ok  { color: #15803d; }
+.feedback-err { color: #b91c1c; }
+
+/* &#8212;&#8212; Toast &#8212;&#8212; */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: #1f2328; color: #fff; padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; transition: transform 0.3s;
+  z-index: 200; pointer-events: none;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* &#8212;&#8212; Footer &#8212;&#8212; */
+footer {
+  text-align: center; font-size: 12px; color: #9ca3af;
+  border-top: 1px solid #e5e7eb; padding: 14px;
+  background: #fff; margin-top: 8px;
+}
+
+/* &#8212;&#8212; Responsive &#8212;&#8212; */
+@media (max-width: 1000px) {
+  .cards { grid-template-columns: repeat(3, 1fr); }
+  .charts-row { grid-template-columns: 1fr 1fr; }
+  .charts-row > .chart-box:first-child { grid-column: span 2; }
+}
+@media (max-width: 620px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  .charts-row { grid-template-columns: 1fr; }
+  .charts-row > .chart-box:first-child { grid-column: span 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div>
+    <div class="topbar-brand">&#128203; Dashboard Semakan iFRP &#8212; Kolej Komuniti Arau</div>
+    <div class="topbar-meta">SENARAI AGIHAN SEMAKAN PERTAMA &middot; Sesi I 2026/2027 &middot; 27 Jul &#8211; 07 Ogos 2026</div>
+  </div>
+  <div class="topbar-right">
+    <button class="tb-btn-ghost" id="btn-sync" onclick="syncGSheet()">&#128260; Sync Google Sheets</button>
+    <button class="tb-btn-ghost" onclick="openImport()">&#8679; Import CSV</button>
+    <button class="tb-btn" onclick="exportCSV()">&#8681; Export CSV</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- Summary Cards -->
+  <div class="cards">
+    <div class="card card-accent-blue">
+      <div class="card-label">Jumlah Pensyarah</div>
+      <div class="card-value" id="c-total">&#8212;</div>
+      <div class="card-sub">dalam senarai</div>
+    </div>
+    <div class="card card-accent-green">
+      <div class="card-label">Selesai Disemak</div>
+      <div class="card-value" id="c-selesai">&#8212;</div>
+      <div class="card-sub">semakan lengkap</div>
+    </div>
+    <div class="card card-accent-amber">
+      <div class="card-label">Dalam Semakan</div>
+      <div class="card-value" id="c-semakan">&#8212;</div>
+      <div class="card-sub">sedang disemak</div>
+    </div>
+    <div class="card card-accent-grey">
+      <div class="card-label">Belum Mula</div>
+      <div class="card-value" id="c-belum">&#8212;</div>
+      <div class="card-sub">penyemak ditetapkan</div>
+    </div>
+    <div class="card card-accent-purple">
+      <div class="card-label">Kadar Selesai</div>
+      <div class="card-value" id="c-rate">&#8212;%</div>
+      <div class="card-sub">daripada yang ada penyemak</div>
+      <div class="prog-track"><div class="prog-fill" id="c-rate-bar" style="background:#7c5cd8;width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-row">
+    <!-- Donut Chart -->
+    <div class="chart-box">
+      <div class="chart-title">Status Semakan</div>
+      <canvas id="chart-donut" width="224" height="224" style="display:block;margin:0 auto;"></canvas>
+      <div class="legend" style="margin-top:12px;justify-content:center;flex-direction:column;align-items:flex-start;gap:8px;">
+        <div class="leg-item"><span class="dot dot-selesai"></span>Selesai Disemak</div>
+        <div class="leg-item"><span class="dot dot-semakan"></span>Dalam Semakan</div>
+        <div class="leg-item"><span class="dot dot-belum"></span>Belum Mula</div>
+        <div class="leg-item"><span class="dot" style="background:#e5e7eb;"></span>Tiada Penyemak</div>
+      </div>
+    </div>
+
+    <!-- Bar: Penyemak workload -->
+    <div class="chart-box">
+      <div class="chart-title">Beban Kerja Penyemak (Bilangan Fail Disemak)</div>
+      <canvas id="chart-reviewer" height="220"></canvas>
+    </div>
+
+    <!-- Bar: Status per penyemak -->
+    <div class="chart-box">
+      <div class="chart-title">Kemajuan Semakan Mengikut Penyemak</div>
+      <canvas id="chart-progress" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="section">
+    <div class="section-title">&#128202; Senarai Pensyarah &amp; Status Semakan iFRP</div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>Carian Nama</label>
+        <input type="search" id="f-search" placeholder="Nama pensyarah atau penyemak&#8230;" oninput="applyFilters()">
+      </div>
+      <div class="filter-group">
+        <label>Penyemak</label>
+        <select id="f-reviewer" onchange="applyFilters()">
+          <option value="">Semua Penyemak</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status</label>
+        <select id="f-status" onchange="applyFilters()">
+          <option value="">Semua Status</option>
+          <option value="Selesai">Selesai Disemak</option>
+          <option value="Dalam Semakan">Dalam Semakan</option>
+          <option value="Belum Mula">Belum Mula</option>
+          <option value="Tiada Penyemak">Tiada Penyemak</option>
+        </select>
+      </div>
+      <button class="btn-reset" onclick="resetFilters()">&#8635; Tetapkan Semula</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="main-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable('bil')" data-col="bil">Bil <span class="si"></span></th>
+            <th onclick="sortTable('pensyarah')" data-col="pensyarah">Nama Pensyarah <span class="si"></span></th>
+            <th onclick="sortTable('penyemak')" data-col="penyemak">Nama Penyemak <span class="si"></span></th>
+            <th onclick="sortTable('status')" data-col="status">Status <span class="si"></span></th>
+            <th>Kemaskini Status</th>
+            <th onclick="sortTable('nota')" data-col="nota">Nota <span class="si"></span></th>
+          </tr>
+        </thead>
+        <tbody id="main-tbody"></tbody>
+      </table>
+    </div>
+    <div id="table-info" style="font-size:12px;color:#57606a;margin-top:10px;"></div>
+  </div>
+
+</main>
+
+<!-- Import Modal -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <h3>Import Data CSV</h3>
+    <p>Import semula fail CSV senarai agihan. Data sedia ada akan digantikan. Status semakan yang telah dikemaskini akan hilang jika tidak disimpan terlebih dahulu.</p>
+    <div class="drop-zone" id="drop-zone">
+      <div>&#128194; Seret &amp; Lepas fail CSV di sini<br><span style="font-size:12px;margin-top:4px;display:block;">atau klik untuk pilih fail</span></div>
+      <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none;">
+    </div>
+    <div id="import-feedback"></div>
+    <details style="margin-top:12px;">
+      <summary style="font-size:12px;cursor:pointer;color:#57606a;">Format CSV yang diterima</summary>
+      <div style="font-size:12px;background:#f7f8fa;border-radius:6px;padding:10px;margin-top:6px;font-family:monospace;color:#57606a;line-height:1.8;">
+        Bil,Nama Pensyarah,Nama Penyemak<br>
+        <span style="color:#9ca3af;">
+          Bil: nombor urutan (1, 2, 3&#8230;)<br>
+          Nama Pensyarah: nama penuh pensyarah<br>
+          Nama Penyemak: nama penyemak atau kosong
+        </span>
+      </div>
+    </details>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeImport()">Batal</button>
+      <button class="btn-primary" id="import-confirm-btn" disabled onclick="confirmImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<footer>Dibina dengan IBM Bob &nbsp;&middot;&nbsp; Kolej Komuniti Arau &nbsp;&middot;&nbsp; Semakan iFRP Sesi I 2026/2027</footer>
+
+<script>
+/* ===================================================
+   DATA
+=================================================== */
+const DEFAULT_DATA = [
+  /* -- Mohd Azha bin Ismail -- */
+  {bil:1,  pensyarah:"Ts. Kasmawati binti Abu Kasim",            penyemak:"Mohd Azha bin Ismail",               status:"Selesai", nota:"Tiada"},
+  {bil:2,  pensyarah:"Nur Asma binti Darus",                     penyemak:"Mohd Azha bin Ismail",               status:"Selesai", nota:"Tiada"},
+  {bil:3,  pensyarah:"Mohd Iskandar bin Mohd Yatim",             penyemak:"Mohd Azha bin Ismail",               status:"Selesai", nota:"Tiada"},
+  /* -- Dr. Zarina binti Yusof -- */
+  {bil:4,  pensyarah:"Ts. Nur Syazalina binti Hanafi",           penyemak:"Dr. Zarina binti Yusof",             status:"Selesai", nota:"Tiada"},
+  {bil:5,  pensyarah:"Ts. Mohammad Hafiz bin Abd Rahim",         penyemak:"Dr. Zarina binti Yusof",             status:"Selesai", nota:"Tiada"},
+  {bil:6,  pensyarah:"Sofiah binti Bakar",                       penyemak:"Dr. Zarina binti Yusof",             status:"Selesai", nota:"Tiada"},
+  {bil:7,  pensyarah:"Zatil Arumah binti Shaarani",              penyemak:"Dr. Zarina binti Yusof",             status:"Selesai", nota:"Tiada"},
+  /* -- Nur Asma binti Darus -- */
+  {bil:8,  pensyarah:"Rabiatul Adawiyah binti Ismail",           penyemak:"Nur Asma binti Darus",               status:"Selesai", nota:"Tiada"},
+  {bil:9,  pensyarah:"Norziana binti Abu Samah",                 penyemak:"Nur Asma binti Darus",               status:"Selesai", nota:"Tiada"},
+  /* -- Ts. Kasmawati binti Abu Kasim -- */
+  {bil:10, pensyarah:"Mohd Azha bin Ismail",                     penyemak:"Ts. Kasmawati binti Abu Kasim",      status:"Selesai", nota:"tiada"},
+  {bil:11, pensyarah:"Saiful Azley bin Samsudin",                penyemak:"Ts. Kasmawati binti Abu Kasim",      status:"Selesai", nota:"tiada"},
+  /* -- Mohd Azli bin Takiyudin -- */
+  {bil:12, pensyarah:"Nurdiyanah Fatin Binti Ruslan",            penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"Tiada"},
+  {bil:13, pensyarah:"Ali bin Othman",                           penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"SPK10152_SPK1A - Tiada rangka kursus dan borang tandatangan kehadiran. SPK10152_SPK1B - Tiada rangka kursus, Jadual Bengkel dan borang tandatangan kehadiran"},
+  {bil:14, pensyarah:"Ts. Nor Shazwani binti Shaari",            penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"Tiada"},
+  {bil:15, pensyarah:"Nurul Hidayah Binti Samsurrijal",          penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"Tiada"},
+  {bil:16, pensyarah:"Syukriah binti Safie",                     penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"SPK30233_SPK3B - Tiada surat amaran dan tunjuk sebab (F058). Tiada borang tandatangan kehadiran bagi ketiga-tiga kursus"},
+  {bil:17, pensyarah:"Syaliza binti Azmi",                       penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"Tiada senarai daftar bagi ketiga-tiga kursus. SPK20213 - Tiada jadual bengkel"},
+  {bil:18, pensyarah:"Muna Nabilah binti Azhar",                 penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"SPK10142_SPK1B - Tiada senarai daftar"},
+  {bil:19, pensyarah:"Khairel Ezwan bin Hj. Saad",               penyemak:"Mohd Azli bin Takiyudin",            status:"Selesai", nota:"SPK30253_SPK3B - Tiada rangka kursus"},
+  /* -- Ts. Nur Syazalina binti Hanafi -- */
+  {bil:20, pensyarah:"Wan Muhd Zakwan bin Wan Zin",              penyemak:"Ts. Nur Syazalina binti Hanafi",     status:"Selesai", nota:""},
+  {bil:21, pensyarah:"Ts. Hazwani Rifhan binti Halim",           penyemak:"Ts. Nur Syazalina binti Hanafi",     status:"Selesai", nota:""},
+  {bil:22, pensyarah:"Hasnurul Nazimah binti Hashim",            penyemak:"Ts. Nur Syazalina binti Hanafi",     status:"Selesai", nota:""},
+  {bil:23, pensyarah:"Husna binti Ibrahim",                      penyemak:"Ts. Nur Syazalina binti Hanafi",     status:"Selesai", nota:""},
+  {bil:24, pensyarah:"Madzura bin Mohamad",                      penyemak:"Ts. Nur Syazalina binti Hanafi",     status:"Selesai", nota:""},
+  /* -- Wan Muhd Zakwan bin Wan Zin -- */
+  {bil:25, pensyarah:"Rosminey bin Ahmad",                       penyemak:"Wan Muhd Zakwan bin Wan Zin",        status:"Selesai", nota:"Dokumen Sokongan tidak dimuatnaik"},
+  {bil:26, pensyarah:"Hasnira binti Md Halim",                   penyemak:"Wan Muhd Zakwan bin Wan Zin",        status:"Selesai", nota:"Dokumen Sokongan tidak dimuatnaik. Rancangan Mengajar tidak dikemaskini"},
+  {bil:27, pensyarah:"Kamrul Zaman bin Hussin",                  penyemak:"Wan Muhd Zakwan bin Wan Zin",        status:"Selesai", nota:"Dokumen Sokongan tidak dimuatnaik"},
+  {bil:28, pensyarah:"Zuraida binti Zulkifli",                   penyemak:"Wan Muhd Zakwan bin Wan Zin",        status:"Selesai", nota:"Dokumen Sokongan tidak dimuatnaik. Rancangan Mengajar tidak dikemaskini"},
+  /* -- Mohd Iskandar bin Mohd Yatim -- */
+  {bil:29, pensyarah:"Dr. Zarina binti Yusof",                   penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Selesai", nota:""},
+  {bil:30, pensyarah:"Mohd Imran bin Ahmad Kamal",               penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Selesai", nota:"Rancangan Mengajar bagi kursus SFP 10172 tidak dikemaskini"},
+  {bil:31, pensyarah:"Iza Rida binti Ismail",                    penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Belum Mula", nota:""},
+  {bil:32, pensyarah:"Azlia binti Mohd Nazli",                   penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Belum Mula", nota:""},
+  {bil:33, pensyarah:"Norasmahan binti Ali",                     penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Selesai", nota:"Rancangan Mengajar bagi kursus SFP30103 tidak dikemaskini"},
+  {bil:34, pensyarah:"Mohammad Nizam bin Saad",                  penyemak:"Mohd Iskandar bin Mohd Yatim",       status:"Selesai", nota:"Course outline tidak dilampirkan bagi ketiga-tiga kursus utama"},
+  /* -- Norasmahan binti Ali -- */
+  {bil:35, pensyarah:"Azlan bin Othman",                         penyemak:"Norasmahan binti Ali",               status:"Selesai", nota:"SFP 30113_SFP 3A - Rangka kursus tidak dimuatnaik"},
+  {bil:36, pensyarah:"Abdul Muhsin bin Baharin",                 penyemak:"Norasmahan binti Ali",               status:"Selesai", nota:"Tiada"},
+  {bil:37, pensyarah:"Irmayariani binti Kamalsha",               penyemak:"Norasmahan binti Ali",               status:"Selesai", nota:"SFP20223 - Borang Tandatangan Rekod Kehadiran tidak dimuatnaik. SFP20183 - Rancangan Mengajar tidak dikemaskini"},
+  {bil:38, pensyarah:"Norfauziah binti Ahmad",                   penyemak:"Norasmahan binti Ali",               status:"Selesai", nota:"SFP30103_SFP 3B - Dokumen Sokongan tidak dimuatnaik. SFP10172 - Rancangan Mengajar tidak dikemaskini"},
+  {bil:39, pensyarah:"Maryuliyani binti Ahmad",                  penyemak:"Norasmahan binti Ali",               status:"Selesai", nota:"Tiada"},
+  /* -- Ts. Mohammad Hafiz bin Abd Rahim -- */
+  {bil:40, pensyarah:"Azrul Hisham bin Shuib",                   penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"SEE20153 SKE2A - Tiada Tandatangan kehadiran Pelajar. SBC10022 SKE1A & SKE1B - Tiada Tandatangan kehadiran Pelajar"},
+  {bil:41, pensyarah:"Shmeni bin Shariff",                       penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"Tiada"},
+  {bil:42, pensyarah:"Habsah binti Hussain",                     penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"SEM20102 SKE3A - Tiada senarai daftar, Tiada Tandatangan kehadiran, Tiada memo makluman pentaksiran. SEE10143 SKE1A & SKE1B - Tiada senarai daftar, Tiada memo makluman pentaksiran"},
+  {bil:43, pensyarah:"Mohd Khairi bin Yusof",                    penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"SEE30173 SKE3A & SKE3B - Tiada memo makluman pentaksiran"},
+  {bil:44, pensyarah:"Siti Salbiah binti Yusoff",                penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"Tiada"},
+  {bil:45, pensyarah:"N.S Rahim Muda bin Meh",                   penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"SBM10022 SKE1A & SKE1B - Tiada Rangka Kursus, Tiada Memo makluman pentaksiran. SEW40083 SKE3C - Tiada Memo makluman pentaksiran"},
+  {bil:46, pensyarah:"Noraiza binti Zainal Baharain",            penyemak:"Ts. Mohammad Hafiz bin Abd Rahim",   status:"Selesai", nota:"SEM20102 SKE3B & SKE3C - Tiada memo makluman pentaksiran. SKE3C - Tiada borang tandatangan kehadiran pelajar"},
+  /* -- Noraiza binti Zainal Baharain -- */
+  {bil:47, pensyarah:"Noor Azimah binti Abdul Ghani",            penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"SEE10113 SKE1A & SKE1B - senarai daftar tidak disertakan. SBS10022 SKE2A - senarai daftar tidak disertakan"},
+  {bil:48, pensyarah:"Zainordin bin Bakar",                      penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"SEW10063 SKE1A - CO tidak disertakan. SUW10052 SKE2A - surat peringatan dan surat tunjuk sebab tidak dimuatnaik"},
+  {bil:49, pensyarah:"Ku Mahadi bin Ku Mahadzir",                penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"SBC10022 SKE1B - RM tidak dikemaskini"},
+  {bil:50, pensyarah:"Mohd Hairi Fifi bin Mansor",               penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"tiada"},
+  {bil:51, pensyarah:"Mohammad Shahiran bin Salim",              penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"SEE10123 SKE1A - surat pelepasan pelajar tidak disertakan. SBC10022 SKE1A - RM tidak dikemaskini"},
+  {bil:52, pensyarah:"Muhammad Khairi bin Bahrul Ulum",          penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"SEE30194 SKE3C - surat peringatan dan surat tunjuk sebab tidak dimuatnaik, tandatangan kehadiran pelajar (July) tidak disertakan. SEW10063 SKE1B - tandatangan kehadiran pelajar (July) tidak disertakan"},
+  {bil:53, pensyarah:"Ab. Rani bin Ali",                         penyemak:"Noraiza binti Zainal Baharain",      status:"Selesai", nota:"tiada"},
+  /* -- Sofiah binti Bakar -- */
+  {bil:54, pensyarah:"Azmiah binti Aziz",                        penyemak:"Sofiah binti Bakar",                 status:"Selesai", nota:"TIADA"},
+  {bil:55, pensyarah:"Shafarizan binti Abd. Samad",              penyemak:"Sofiah binti Bakar",                 status:"Selesai", nota:"TIADA"},
+  {bil:56, pensyarah:"Nur Elyani binti Mohammad",                penyemak:"Sofiah binti Bakar",                 status:"Selesai", nota:"TIADA"},
+  {bil:57, pensyarah:"Mohd Noor Ariff bin Abdullah",             penyemak:"Sofiah binti Bakar",                 status:"Selesai", nota:"TIADA"},
+  {bil:58, pensyarah:"Nur Nadia bin Musa",                       penyemak:"Sofiah binti Bakar",                 status:"Selesai", nota:"TIADA"},
+  /* -- Nur Nadia bin Musa -- */
+  {bil:59, pensyarah:"Nurraihan binti Md. Ramly",                penyemak:"Nur Nadia bin Musa",                 status:"Selesai", nota:"-"},
+  {bil:60, pensyarah:"Anuar Effendy bin Ahmad",                  penyemak:"Nur Nadia bin Musa",                 status:"Selesai", nota:"-"},
+  {bil:61, pensyarah:"Abdul Rashid Fahmi bin Abdullah",          penyemak:"Nur Nadia bin Musa",                 status:"Selesai", nota:"-"},
+  {bil:62, pensyarah:"Ainun Rafieza binti Ahmad Tajuddin",       penyemak:"Nur Nadia bin Musa",                 status:"Selesai", nota:"-"},
+  {bil:63, pensyarah:"Nor Syarizaini binti Abdul Mutalib",       penyemak:"Nur Nadia bin Musa",                 status:"Selesai", nota:"-"},
+  /* -- Zatil Arumah binti Shaarani -- */
+  {bil:64, pensyarah:"Mohd. Fuad bin Kassim",                    penyemak:"Zatil Arumah binti Shaarani",        status:"Selesai", nota:"Tiada"},
+  {bil:65, pensyarah:"Nurazlen binti Ahmad",                     penyemak:"Zatil Arumah binti Shaarani",        status:"Selesai", nota:"Tiada"},
+  {bil:66, pensyarah:"Che Nornazmin binti Che Hassan",           penyemak:"Zatil Arumah binti Shaarani",        status:"Selesai", nota:"Tiada"},
+  {bil:67, pensyarah:"Azirah binti Seman",                       penyemak:"Zatil Arumah binti Shaarani",        status:"Selesai", nota:"Tiada"},
+  /* -- Tiada Penyemak -- */
+  {bil:68, pensyarah:"Ts. Hasniza binti Abdul Wahab",            penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:69, pensyarah:"Hanisah binti Ahmad",                      penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:70, pensyarah:"Siti Nasiroh binti Ismail",                penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:71, pensyarah:"Nurul Balqish binti Abdul Wahab",          penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:72, pensyarah:"Siti Aiesyah binti Mohd Daud",             penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:73, pensyarah:"Mohd Azli bin Takiyudin",                  penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:74, pensyarah:"Ainul Mardhiyah binti Mat Yusoff",         penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:75, pensyarah:"Vaasala a/p Kaliappa",                     penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+  {bil:76, pensyarah:"Mohammad Naim bin Abdullah",               penyemak:"",                                   status:"Tiada Penyemak", nota:""},
+];
+
+const STORAGE_KEY = 'ifrp-kka-status-2026';
+
+/* -- Load saved status overrides -- */
+function loadSavedStatus() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    DEFAULT_DATA.forEach(r => {
+      if (saved[r.bil]) {
+        r.status = saved[r.bil].status || r.status;
+        r.nota   = saved[r.bil].nota   || r.nota;
+      }
+    });
+  } catch(e) {}
+}
+
+function saveStatus() {
+  const out = {};
+  rawData.forEach(r => { out[r.bil] = { status: r.status, nota: r.nota }; });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
+}
+
+/* -- State -- */
+let rawData = DEFAULT_DATA.map(r => ({...r}));
+let filteredRows = [];
+let sortCol = 'bil', sortDir = 1;
+
+/* ===================================================
+   INIT
+=================================================== */
+function init() {
+  loadSavedStatus();
+  populateReviewerFilter();
+  applyFilters();
+}
+
+function populateReviewerFilter() {
+  const reviewers = [...new Set(rawData.map(r => r.penyemak).filter(Boolean))].sort();
+  const sel = document.getElementById('f-reviewer');
+  sel.innerHTML = '<option value="">Semua Penyemak</option>';
+  reviewers.forEach(rv => {
+    const o = document.createElement('option');
+    o.value = rv; o.textContent = rv;
+    sel.appendChild(o);
+  });
+}
+
+/* ===================================================
+   FILTERS
+=================================================== */
+function applyFilters() {
+  const search   = document.getElementById('f-search').value.trim().toLowerCase();
+  const reviewer = document.getElementById('f-reviewer').value;
+  const status   = document.getElementById('f-status').value;
+
+  filteredRows = rawData.filter(r => {
+    if (search && !r.pensyarah.toLowerCase().includes(search) && !r.penyemak.toLowerCase().includes(search)) return false;
+    if (reviewer && r.penyemak !== reviewer) return false;
+    if (status && r.status !== status) return false;
+    return true;
+  });
+
+  sortRows();
+  renderAll();
+}
+
+function resetFilters() {
+  document.getElementById('f-search').value = '';
+  document.getElementById('f-reviewer').value = '';
+  document.getElementById('f-status').value = '';
+  applyFilters();
+}
+
+function sortRows() {
+  filteredRows.sort((a, b) => {
+    const va = String(a[sortCol] || ''), vb = String(b[sortCol] || '');
+    if (sortCol === 'bil') return (a.bil - b.bil) * sortDir;
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  sortRows();
+  renderTable();
+}
+
+/* ===================================================
+   STATS
+=================================================== */
+function computeStats(data) {
+  let selesai = 0, semakan = 0, belum = 0, tiada = 0;
+  data.forEach(r => {
+    if (r.status === 'Selesai') selesai++;
+    else if (r.status === 'Dalam Semakan') semakan++;
+    else if (r.status === 'Belum Mula') belum++;
+    else tiada++;
+  });
+  const withReviewer = selesai + semakan + belum;
+  const rate = withReviewer > 0 ? Math.round(selesai / withReviewer * 100) : 0;
+  return { total: data.length, selesai, semakan, belum, tiada, withReviewer, rate };
+}
+
+/* -- Per-reviewer workload -- */
+function computeReviewerMap(data) {
+  const map = {};
+  data.forEach(r => {
+    if (!r.penyemak) return;
+    if (!map[r.penyemak]) map[r.penyemak] = { selesai: 0, semakan: 0, belum: 0 };
+    if (r.status === 'Selesai') map[r.penyemak].selesai++;
+    else if (r.status === 'Dalam Semakan') map[r.penyemak].semakan++;
+    else map[r.penyemak].belum++;
+  });
+  return map;
+}
+
+/* ===================================================
+   RENDER ALL
+=================================================== */
+function renderAll() {
+  const stats = computeStats(rawData);
+  renderCards(stats);
+  renderTable();
+  renderCharts(stats);
+}
+
+function renderCards(s) {
+  document.getElementById('c-total').textContent   = s.total;
+  document.getElementById('c-selesai').textContent = s.selesai;
+  document.getElementById('c-semakan').textContent = s.semakan;
+  document.getElementById('c-belum').textContent   = s.belum;
+  document.getElementById('c-rate').textContent    = s.rate + '%';
+  document.getElementById('c-rate-bar').style.width = s.rate + '%';
+}
+
+/* -- TABLE -- */
+function renderTable() {
+  const tbody = document.getElementById('main-tbody');
+  tbody.innerHTML = '';
+
+  if (filteredRows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="table-empty">Tiada rekod ditemui.</td></tr>';
+    document.getElementById('table-info').textContent = '';
+    return;
+  }
+
+  filteredRows.forEach(r => {
+    const tr = document.createElement('tr');
+    const badgeCls = { 'Selesai': 'badge-selesai', 'Dalam Semakan': 'badge-semakan', 'Belum Mula': 'badge-belum', 'Tiada Penyemak': 'badge-tiada' }[r.status] || 'badge-belum';
+    const canChange = r.penyemak !== '';
+
+    tr.innerHTML = `
+      <td style="text-align:center;color:#57606a;font-size:12px;">${r.bil}</td>
+      <td style="font-weight:500;">${esc(r.pensyarah)}</td>
+      <td>${r.penyemak ? esc(r.penyemak) : '<span style="color:#9ca3af;font-style:italic;">&#8212;</span>'}</td>
+      <td><span class="badge ${badgeCls}">${esc(r.status)}</span></td>
+      <td>
+        ${canChange ? `
+        <select class="status-sel" data-bil="${r.bil}" onchange="updateStatus(this)">
+          <option value="Belum Mula"${r.status==='Belum Mula'?' selected':''}>Belum Mula</option>
+          <option value="Dalam Semakan"${r.status==='Dalam Semakan'?' selected':''}>Dalam Semakan</option>
+          <option value="Selesai"${r.status==='Selesai'?' selected':''}>Selesai Disemak</option>
+        </select>` : '<span style="font-size:11px;color:#9ca3af;">&#8212;</span>'}
+      </td>
+      <td>
+        <input type="text" placeholder="Tambah nota..." value="${esc(r.nota)}"
+          data-bil="${r.bil}"
+          onchange="updateNota(this)"
+          style="border:1px solid #e5e7eb;border-radius:5px;padding:3px 7px;font-size:12px;width:100%;min-width:130px;color:#1f2328;">
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.querySelectorAll('thead th[data-col]').forEach(th => {
+    const si = th.querySelector('.si');
+    si.textContent = th.dataset.col === sortCol ? (sortDir === 1 ? ' \u25b2' : ' \u25bc') : '';
+  });
+
+  document.getElementById('table-info').textContent = 'Menunjukkan ' + filteredRows.length + ' daripada ' + rawData.length + ' rekod';
+}
+
+function updateStatus(sel) {
+  const bil = parseInt(sel.dataset.bil);
+  const rec = rawData.find(r => r.bil === bil);
+  if (rec) {
+    rec.status = sel.value;
+    saveStatus();
+    renderAll();
+    showToast('Status dikemaskini.');
+  }
+}
+
+function updateNota(input) {
+  const bil = parseInt(input.dataset.bil);
+  const rec = rawData.find(r => r.bil === bil);
+  if (rec) { rec.nota = input.value; saveStatus(); }
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ===================================================
+   CHARTS (pure Canvas)
+=================================================== */
+function renderCharts(stats) {
+  drawDonut('chart-donut', stats);
+  const rvMap = computeReviewerMap(rawData);
+  drawReviewerBar('chart-reviewer', rvMap);
+  drawProgressBar('chart-progress', rvMap);
+}
+
+/* -- Donut -- */
+function drawDonut(id, stats) {
+  const canvas = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  const size = 224;
+  canvas.width = size * dpr; canvas.height = size * dpr;
+  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, size, size);
+
+  const cx = size / 2, cy = size / 2, r = 88, inner = 54;
+  const total = stats.total || 1;
+  const slices = [
+    { v: stats.selesai, c: '#22c55e' },
+    { v: stats.semakan, c: '#f59e0b' },
+    { v: stats.belum,   c: '#9ca3af' },
+    { v: stats.tiada,   c: '#e5e7eb' },
+  ];
+
+  let angle = -Math.PI / 2;
+  slices.forEach(sl => {
+    if (sl.v === 0) return;
+    const sweep = (sl.v / total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle, angle + sweep);
+    ctx.closePath();
+    ctx.fillStyle = sl.c;
+    ctx.fill();
+    angle += sweep;
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, inner, 0, 2 * Math.PI);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+
+  ctx.fillStyle = '#1f2328';
+  ctx.font = 'bold 22px system-ui';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(stats.rate + '%', cx, cy - 8);
+  ctx.font = '11px system-ui';
+  ctx.fillStyle = '#57606a';
+  ctx.fillText('Selesai', cx, cy + 11);
+}
+
+/* -- Reviewer bar -- */
+function drawReviewerBar(id, rvMap) {
+  const canvas = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = Math.max(200, rect.width - 36), H = 220;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const reviewers = Object.keys(rvMap).sort();
+  if (reviewers.length === 0) {
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('Tiada data penyemak', W / 2, H / 2);
+    return;
+  }
+
+  const padL = 10, padR = 12, padT = 10, padB = 70;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+  const maxVal = Math.max(1, ...reviewers.map(rv => rvMap[rv].selesai + rvMap[rv].semakan + rvMap[rv].belum));
+  const bw = (chartW / reviewers.length) * 0.55;
+  const gap = chartW / reviewers.length;
+
+  ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const yv = Math.round(maxVal / 4 * i);
+    const y = padT + chartH - (yv / maxVal) * chartH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+    ctx.fillStyle = '#9ca3af'; ctx.font = '9px system-ui'; ctx.textAlign = 'right';
+    ctx.fillText(yv, padL + 18, y + 3);
+  }
+
+  const colors = ['#22c55e', '#f59e0b', '#9ca3af'];
+  reviewers.forEach((rv, i) => {
+    const m = rvMap[rv];
+    const vals = [m.selesai, m.semakan, m.belum];
+    const x = padL + gap * i + (gap - bw) / 2;
+    let yBase = padT + chartH;
+
+    vals.forEach((v, vi) => {
+      if (v === 0) return;
+      const bh = (v / maxVal) * chartH;
+      ctx.fillStyle = colors[vi];
+      ctx.fillRect(x, yBase - bh, bw, bh);
+      yBase -= bh;
+    });
+
+    ctx.save();
+    ctx.translate(x + bw / 2, padT + chartH + 8);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillStyle = '#57606a'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+    const shortName = rv.split(' ').slice(-2).join(' ');
+    ctx.fillText(shortName, 0, 0);
+    ctx.restore();
+  });
+
+  ctx.strokeStyle = '#d1d5db'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, padT + chartH); ctx.lineTo(W - padR, padT + chartH); ctx.stroke();
+}
+
+/* -- Progress bar chart per reviewer -- */
+function drawProgressBar(id, rvMap) {
+  const canvas = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = Math.max(200, rect.width - 36), H = 220;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const reviewers = Object.keys(rvMap).sort();
+  if (reviewers.length === 0) {
+    ctx.fillStyle = '#9ca3af'; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('Tiada data penyemak', W / 2, H / 2);
+    return;
+  }
+
+  const padL = 6, padR = 52, padT = 8, padB = 8;
+  const chartH = H - padT - padB;
+  const rowH = chartH / reviewers.length;
+  const barH = Math.min(16, rowH * 0.55);
+
+  reviewers.forEach((rv, i) => {
+    const m = rvMap[rv];
+    const total = m.selesai + m.semakan + m.belum;
+    if (total === 0) return;
+    const y = padT + i * rowH + (rowH - barH) / 2;
+    const availW = W - padL - padR;
+
+    ctx.fillStyle = '#f3f4f6'; ctx.fillRect(padL, y, availW, barH);
+
+    let x = padL;
+    [['selesai', '#22c55e'], ['semakan', '#f59e0b'], ['belum', '#e5e7eb']].forEach(([k, c]) => {
+      const seg = (m[k] / total) * availW;
+      if (seg > 0) { ctx.fillStyle = c; ctx.fillRect(x, y, seg, barH); x += seg; }
+    });
+
+    const pct = Math.round(m.selesai / total * 100);
+    ctx.fillStyle = '#1f2328'; ctx.font = 'bold 11px system-ui'; ctx.textAlign = 'left';
+    ctx.fillText(pct + '%', W - padR + 4, y + barH / 2 + 4);
+
+    const shortName = rv.split(' ').slice(-2).join(' ');
+    ctx.fillStyle = '#57606a'; ctx.font = '10px system-ui'; ctx.textAlign = 'left';
+    ctx.fillText(shortName, padL, y - 3);
+  });
+}
+
+window.addEventListener('resize', () => {
+  const stats = computeStats(rawData);
+  renderCharts(stats);
+});
+
+/* ===================================================
+   CSV IMPORT
+=================================================== */
+let pendingCSV = null;
+
+function openImport() {
+  document.getElementById('import-modal').classList.add('active');
+  document.getElementById('import-feedback').textContent = '';
+  document.getElementById('import-feedback').className = '';
+  document.getElementById('import-confirm-btn').disabled = true;
+  document.getElementById('csv-file-input').value = '';
+  pendingCSV = null;
+}
+function closeImport() { document.getElementById('import-modal').classList.remove('active'); }
+
+document.getElementById('drop-zone').addEventListener('click', () => {
+  document.getElementById('csv-file-input').click();
+});
+document.getElementById('csv-file-input').addEventListener('change', e => {
+  if (e.target.files[0]) processFile(e.target.files[0]);
+});
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
+});
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    const result = parseAgihCSV(text);
+    const fb = document.getElementById('import-feedback');
+    if (result.error) {
+      fb.className = 'feedback-err'; fb.textContent = result.error;
+      document.getElementById('import-confirm-btn').disabled = true;
+      pendingCSV = null;
+    } else {
+      fb.className = 'feedback-ok';
+      fb.textContent = '\u2713 ' + result.records.length + ' rekod ditemui. Klik Import untuk teruskan.';
+      document.getElementById('import-confirm-btn').disabled = false;
+      pendingCSV = result.records;
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseAgihCSV(text) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].toLowerCase();
+    if (l.includes('bil') && l.includes('pensyarah')) { headerIdx = i; break; }
+  }
+  if (headerIdx === -1) return { error: 'Tidak dapat menemui lajur Bil dan Nama Pensyarah dalam CSV.' };
+
+  const header = lines[headerIdx].split(',').map(h => h.trim().toLowerCase());
+  const bilIdx  = header.findIndex(h => h === 'bil');
+  const penIdx  = header.findIndex(h => h.includes('pensyarah'));
+  const semIdx  = header.findIndex(h => h.includes('penyemak'));
+  if (bilIdx === -1 || penIdx === -1) return { error: 'Lajur "Bil" atau "Nama Pensyarah" tidak dijumpai.' };
+
+  const records = [];
+  const saved = {};
+  try { Object.assign(saved, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch(e) {}
+
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(c => c.trim());
+    const bil = parseInt(cols[bilIdx]);
+    if (isNaN(bil)) continue;
+    const pensyarah = cols[penIdx] || '';
+    const penyemak  = semIdx !== -1 ? (cols[semIdx] || '') : '';
+    if (!pensyarah) continue;
+    const defaultStatus = penyemak ? 'Belum Mula' : 'Tiada Penyemak';
+    const status = saved[bil] ? saved[bil].status : defaultStatus;
+    const nota   = saved[bil] ? saved[bil].nota : '';
+    records.push({ bil, pensyarah, penyemak, status, nota });
+  }
+
+  if (records.length === 0) return { error: 'Tiada rekod sah ditemui dalam fail CSV.' };
+  return { records };
+}
+
+function confirmImport() {
+  if (!pendingCSV || pendingCSV.length === 0) return;
+  rawData = pendingCSV;
+  closeImport();
+  populateReviewerFilter();
+  resetFilters();
+  showToast('\u2713 ' + rawData.length + ' rekod berjaya diimport.');
+}
+
+/* ===================================================
+   CSV EXPORT
+=================================================== */
+function exportCSV() {
+  const rows = ['Bil,Nama Pensyarah,Nama Penyemak,Status,Nota'];
+  rawData.forEach(r => {
+    rows.push([r.bil, '"' + r.pensyarah + '"', '"' + r.penyemak + '"', '"' + r.status + '"', '"' + r.nota + '"'].join(','));
+  });
+  const csv = rows.join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ifrp_semakan_kka_2026.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Data dieksport sebagai CSV.');
+}
+
+/* ===================================================
+   GOOGLE SHEETS SYNC
+=================================================== */
+const SHEET_ID   = '1bb9-J2UTzzZ_yMTxV9o__HcbTnf2Zupi-0LYccz0S0Q';
+const SHEET_GIDS = [
+  { gid: 479437276,  nama: 'Mohd Azha bin Ismail' },
+  { gid: 722921753,  nama: 'Ts. Kasmawati binti Abu Kasim' },
+  { gid: 933646069,  nama: 'Mohd Azli bin Takiyudin' },
+  { gid: 1584443349, nama: 'Mohd Iskandar bin Mohd Yatim' },
+  { gid: 1374486562, nama: 'Mohd. Fuad bin Kassim' },
+  { gid: 1811986389, nama: 'Zatil Arumah binti Shaarani' },
+  { gid: 1234083328, nama: 'Ts. Mohammad Hafiz bin Abd Rahim' },
+  { gid: 186894457,  nama: 'Noraiza binti Zainal Baharain' },
+  { gid: 1306045821, nama: 'Nur Asma binti Darus' },
+  { gid: 1903604702, nama: 'Norasmahan binti Ali' },
+  { gid: 800475421,  nama: 'Wan Muhd Zakwan bin Wan Zin' },
+  { gid: 1327483812, nama: 'Sofiah binti Bakar' },
+  { gid: 250211805,  nama: 'Ts. Nur Syazalina binti Hanafi' },
+  { gid: 48165497,   nama: 'Nur Nadia bin Musa' },
+  { gid: 223131541,  nama: 'Dr. Zarina binti Yusof' },
+];
+const PROXY = 'https://corsproxy.io/?';
+
+function sheetCsvUrl(gid) {
+  return PROXY + encodeURIComponent(
+    'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
+    '/export?format=csv&gid=' + gid
+  );
+}
+
+function parseSheetTab(text, namaPenyemak) {
+  text = text.replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+  if (lines.length < 2) return [];
+
+  const splitCSV = line => {
+    const result = []; let cur = ''; let inQ = false;
+    for (const c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    result.push(cur.trim());
+    return result;
+  };
+
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(lines.length, 6); i++) {
+    const l = lines[i].toLowerCase();
+    if (l.includes('bil') || l.includes('pensyarah') || l.includes('nama')) {
+      headerIdx = i; break;
+    }
+  }
+
+  const header = splitCSV(lines[headerIdx]).map(h => h.replace(/"/g, '').toLowerCase().trim());
+  const iB = header.findIndex(h => h === 'bil' || h === 'no' || h === 'no.');
+  const iP = header.findIndex(h => h.includes('pensyarah') || (h.includes('nama') && !h.includes('penyemak')));
+  const iS = header.findIndex(h => h.includes('status'));
+  const iN = header.findIndex(h => h.includes('nota') || h.includes('catatan') || h.includes('komen'));
+  if (iP === -1) return [];
+
+  const saved = {};
+  try { Object.assign(saved, JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}')); } catch(e) {}
+
+  const records = [];
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const cols = splitCSV(lines[i]).map(c => c.replace(/^"|"$/g, '').trim());
+    if (!cols.some(c => c)) continue;
+    const rawBil  = iB >= 0 ? cols[iB] : String(i - headerIdx);
+    const bil     = parseInt(rawBil);
+    if (isNaN(bil)) continue;
+    const pensyarah = cols[iP] || '';
+    if (!pensyarah) continue;
+    const csvStatus = iS >= 0 ? (cols[iS] || '') : '';
+    const csvNota   = iN >= 0 ? (cols[iN] || '') : '';
+    const defStatus = namaPenyemak ? 'Belum Mula' : 'Tiada Penyemak';
+    const status    = saved[bil] ? saved[bil].status : (csvStatus || defStatus);
+    const nota      = saved[bil] ? saved[bil].nota   : csvNota;
+    records.push({ bil, pensyarah, penyemak: namaPenyemak, status, nota });
+  }
+  return records;
+}
+
+function syncGSheet() {
+  const btn = document.getElementById('btn-sync');
+  btn.disabled = true;
+  btn.textContent = '&#8987; 0/' + SHEET_GIDS.length + '...';
+
+  let done = 0;
+  const allRecords = [];
+  const seenBil = new Set();
+  const total = SHEET_GIDS.length;
+
+  const promises = SHEET_GIDS.map(({ gid, nama }) =>
+    fetch(sheetCsvUrl(gid))
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(text => {
+        const recs = parseSheetTab(text, nama);
+        recs.forEach(r => {
+          if (!seenBil.has(r.bil)) { seenBil.add(r.bil); allRecords.push(r); }
+          else {
+            const ex = allRecords.find(x => x.bil === r.bil);
+            if (ex && !ex.penyemak) ex.penyemak = r.penyemak;
+          }
+        });
+      })
+      .catch(err => console.warn('gid=' + gid + ' (' + nama + ') gagal: ' + err.message))
+      .finally(() => {
+        done++;
+        btn.textContent = '\u23f3 ' + done + '/' + total + '...';
+      })
+  );
+
+  Promise.all(promises).then(() => {
+    if (allRecords.length === 0) {
+      showToast('\u26a0 Tiada data. Pastikan spreadsheet "Anyone with the link".');
+    } else {
+      allRecords.sort((a, b) => a.bil - b.bil);
+      rawData = allRecords;
+      populateReviewerFilter();
+      resetFilters();
+      showToast('\u2713 ' + rawData.length + ' rekod dari ' + total + ' sheet disegerakkan.');
+    }
+    btn.disabled = false;
+    btn.textContent = '&#128260; Sync Google Sheets';
+  });
+}
+
+/* ===================================================
+   TOAST
+=================================================== */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* -- Start -- */
+init();
+</script>
+</body>
+</html>
